@@ -1,5 +1,6 @@
 #include "Map.cpp"
 #include "HashFunc/hashFunc.cpp"
+#include "Pair.cpp"
 
 template<class K, class V>
 class HashAbierto : public map<K,V>
@@ -12,15 +13,31 @@ public:
         this->elems = 0;
         this->arr = new *list<*pair<k, v>>[arrSize];
     }
-
-    boole has(K key) override
+//------------------------------------------------------------------------
+    bool has(K key) override
     {
+        for(int i = 0; i < this->arrSize; i++)
+        {
+            if (this->func->hash(this->arr[i]) == key)
+            {
+                return true;
+            }
+        }
+    return false;
     }
-
+//------------------------------------------------------------------------
     V get(K key) override
     {
+        for(int i = 0; i < this->arrSize; i++)
+        {
+            if (this->func->hash(this->arr[i]) == key)
+            {
+                return this->arr[i];
+            }
+        }
+    return 0;
     }
-
+//------------------------------------------------------------------------
     void set(K key, V value) override
     {
         int h = this->func->hash(key);
@@ -47,18 +64,18 @@ public:
             elems++;
         }
     } 
-
+//------------------------------------------------------------------------
     int size() override
     {
       return this->elems;
     }
-
+//------------------------------------------------------------------------
     void remove(K key) override
     {
       // TODO Auto-generated method stub
       throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
-
+//------------------------------------------------------------------------
     Iterator<pair<K, V>> iterator() override
     {
         list<*pair<K, V>> *itList = new list<*pair<K, V>>();
@@ -84,7 +101,7 @@ private:
     list<*pair<K, V>> **arr;
     int arrSize;
     int elems;
-    
+
     int abs(int x)
     {
       if (x < 0)
