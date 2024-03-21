@@ -6,6 +6,7 @@ struct ListNode {
     ListNode<T>* next;
 };
 
+
 template<class T>
 class LinkedList: List<T>{
 private:
@@ -17,5 +18,9 @@ public:
         newNode->elem = elem;
         newNode->next = root;
         root = newNode; 
+    }
+
+    override void delete(int pos){
+        
     }
 };
