@@ -60,6 +60,7 @@ public:
 
   void siftUp(int pos)
   {
+    
     int parentPos = pos / 2;
     if (parentPos < 1)
     {
@@ -75,15 +76,39 @@ public:
       siftUp(parentPos);
     }
   }
+  
   void siftDown(int pos)
   {
+    MinHeapPair<E, P> *nodo = heap[pos];
     int leftSonPos = pos * 2;
     int rightSonPos = pos * 2 + 1;
-    if((leftSonPos >= this->heapSize)){
-      return;
-    }
     MinHeapPair<E, P> *leftSon = heap[leftSonPos];
     MinHeapPair<E, P> *rightSon = heap[rightSonPos];
+    if(leftSonPos <= this->heapSize)
+    {
+      if(rightSonPos <= this->heapSize)
+      {
+        if(nodo->fst >leftSon->fst)
+        {
+          swap(pos,leftSonPos);
+          siftDown(leftSonPos); 
+        }
+      }
+      else
+      {
+        int hijo = leftSonPos;
+        if(leftSon->fst > rightSon->fst)
+        {
+          hijo = rightSonPos;
+        }
+        MinHeapPair<E, P> *nodoHijo = heap[hijo];
+        if(nodo->fst > nodoHijo->fst)
+        {
+          swap(pos,hijo);
+          siftDown(hijo);
+        }
+      }
+    }
     
   }
   E pop() override
@@ -97,16 +122,16 @@ public:
 
   E top() override
   {
-    
+    return this->heap[1];
   }
 
   bool isEmpty() override
   {
-    // TODO Auto-generated method stub
+    return this->heapSize() == 0;
   }
 
   int size() override
   {
-    // TODO Auto-generated method stub
+    return this->heapSize();
   }
 };
