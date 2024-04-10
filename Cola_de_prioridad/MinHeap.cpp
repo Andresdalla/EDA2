@@ -1,4 +1,3 @@
-
 #pragma once
 #include "ColaPrioridad.cpp"
 
@@ -8,21 +7,15 @@ struct MinHeapPair
   E fst;
   P snd;
 
-  MinHeapPair(E fst, P snd)
-  {
-    this.fst = fst;
-    this.snd = snd;
-  }
+  MinHeapPair(E fst, P snd) : fst(fst), snd(snd) {}
 };
 
 template <class E, class P>
-class MinHeap : ColaPrioridad<E, P>
+class MinHeap : public ColaPrioridad<E, P>
 {
 private:
   MinHeapPair<E, P> **heap;
-  // cantidad de elementos en el heap
   int heapSize;
-  // tamanio del array
   int heapLength;
 
   void swap(int a, int b)
@@ -32,106 +25,95 @@ private:
     heap[b] = aux;
   }
 
-  bool parentIsGreater(P child, P parent)
+  bool parentIsGreater(int child, int parent)
   {
-    return parent > child;
+    return heap[parent]->snd > heap[child]->snd;
   }
 
 public:
+  MinHeap()
+  {
+    heap = new MinHeapPair<E, P>*[1];
+    heapSize = 0;
+    heapLength = 1;
+  }
+
   void push(E element, P priority) override
   {
-    heapSize++;
-    if (heapLength <= heapSize)
+    if (heapSize + 1 >= heapLength)
     {
-      MinHeapPair **newHeap = new MinHeapPair *[heapLength * 2];
-      for (int i = 1; i < heapLength; i++)
+      MinHeapPair<E, P> **newHeap = new MinHeapPair<E, P>*[heapLength * 2];
+      for (int i = 0; i < heapSize; i++)
       {
         newHeap[i] = heap[i];
       }
+      delete[] heap;
       heap = newHeap;
-      heapLength = heapLength * 2;
+      heapLength *= 2;
     }
 
     MinHeapPair<E, P> *pair = new MinHeapPair<E, P>(element, priority);
     heap[heapSize] = pair;
+    heapSize++;
 
-    siftUp(heapSize);
-  }
-
-  void siftUp(int pos)
-  {
-    
-    int parentPos = pos / 2;
-    if (parentPos < 1)
+    int current = heapSize - 1;
+    while (current > 0 && parentIsGreater(current, (current - 1) / 2))
     {
-      return;
-    }
-
-    MinHeapPair<E, P> *parent = heap[parentPos];
-    MinHeapPair<E, P> *node = heap[pos];
-
-    if (parentIsGreater(node->snd, parent->snd))
-    {
-      swap(pos, parentPos);
-      siftUp(parentPos);
+      swap(current, (current - 1) / 2);
+      current = (current - 1) / 2;
     }
   }
-  
+
   void siftDown(int pos)
   {
-    MinHeapPair<E, P> *nodo = heap[pos];
-    int leftSonPos = pos * 2;
-    int rightSonPos = pos * 2 + 1;
-    MinHeapPair<E, P> *leftSon = heap[leftSonPos];
-    MinHeapPair<E, P> *rightSon = heap[rightSonPos];
-    if(leftSonPos <= this->heapSize)
+    int left = 2 * pos + 1;
+    int right = 2 * pos + 2;
+    int smallest = pos;
+
+    if (left < heapSize && heap[left]->snd < heap[smallest]->snd)
+      smallest = left;
+
+    if (right < heapSize && heap[right]->snd < heap[smallest]->snd)
+      smallest = right;
+
+    if (smallest != pos)
     {
-      if(rightSonPos <= this->heapSize)
-      {
-        if(nodo->fst >leftSon->fst)
-        {
-          swap(pos,leftSonPos);
-          siftDown(leftSonPos); 
-        }
-      }
-      else
-      {
-        int hijo = leftSonPos;
-        if(leftSon->fst > rightSon->fst)
-        {
-          hijo = rightSonPos;
-        }
-        MinHeapPair<E, P> *nodoHijo = heap[hijo];
-        if(nodo->fst > nodoHijo->fst)
-        {
-          swap(pos,hijo);
-          siftDown(hijo);
-        }
-      }
+      swap(pos, smallest);
+      siftDown(smallest);
     }
-    
   }
+
   E pop() override
   {
-    MinHeapPair<E, P> *ret = heap[1];
-    heap[1] = heap[this->heapSize]:
-    heap[this->heapSize] = nullptr;
-    siftDown(1);
-    this->heapSize--;
+    if (heapSize == 0)
+      throw std::out_of_range("Heap is empty");
+
+    MinHeapPair<E, P> *root = heap[0];
+    E rootElement = root->fst;
+    delete root;
+
+    heap[0] = heap[heapSize - 1];
+    heapSize--;
+    siftDown(0);
+
+    return rootElement;
   }
 
   E top() override
   {
-    return this->heap[1];
+    if (heapSize == 0)
+      throw std::out_of_range("Heap is empty");
+
+    return heap[0]->fst;
   }
 
   bool isEmpty() override
   {
-    return this->heapSize() == 0;
+    return heapSize == 0;
   }
 
   int size() override
   {
-    return this->heapSize();
+    return heapSize;
   }
 };
